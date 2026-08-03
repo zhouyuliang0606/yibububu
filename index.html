@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>一二布布家</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --cream: #FFF6E9;
+    --pink: #FFB3C6;
+    --coral: #FF6B8B;
+    --sky: #8ED0F5;
+    --mint: #9EE6C9;
+    --yellow: #FFD66B;
+    --ink: #5A4A42;
+    --ink-soft: #8a776c;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: "ZCOOL KuaiLe", "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: var(--ink);
+    overflow: hidden;
+    background: #000;
+  }
+
+  /* ---------- 屏幕切换 ---------- */
+  .screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(1.03);
+    transition: opacity .5s ease, transform .5s ease, visibility .5s;
+    overflow: hidden;
+  }
+  .screen.active { opacity: 1; visibility: visible; transform: scale(1); }
+
+  .btn {
+    text-decoration: none;
+    font-size: 1.2rem;
+    padding: 14px 34px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    background: var(--coral);
+    color: #fff;
+    box-shadow: 0 6px 0 #e04f6f;
+    transition: transform .15s ease, box-shadow .15s ease, opacity .4s ease;
+  }
+  .btn:hover { transform: translateY(-3px); box-shadow: 0 9px 0 #e04f6f; }
+  .btn.hidden { opacity: 0; pointer-events: none; transform: translateY(12px) scale(.9); }
+  .btn.show { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
+  .btn.ghost { background: #fff; color: var(--sky); box-shadow: 0 6px 0 rgba(142,208,245,.5); }
+
+  .nav { display: flex; gap: 12px; align-items: center; justify-content: center; }
+
+  /* ============ 第一屏：首页 ============ */
+  #screen1 {
+    background:
+      radial-gradient(circle at 20% 20%, rgba(255,179,198,0.45), transparent 45%),
+      radial-gradient(circle at 80% 30%, rgba(142,208,245,0.4), transparent 45%),
+      radial-gradient(circle at 50% 85%, rgba(158,230,201,0.4), transparent 45%),
+      var(--cream);
+  }
+  .floaty { position: absolute; font-size: 2rem; opacity: .85; animation: float 6s ease-in-out infinite; }
+  .f1 { top: 12%; left: 8%; animation-delay: 0s; }
+  .f2 { top: 22%; right: 10%; animation-delay: 1.2s; }
+  .f3 { bottom: 18%; left: 14%; animation-delay: 2.1s; }
+  .f4 { bottom: 26%; right: 16%; animation-delay: .8s; }
+  .f5 { top: 48%; left: 5%; animation-delay: 1.6s; }
+  .f6 { top: 54%; right: 6%; animation-delay: 2.6s; }
+  @keyframes float { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-18px) rotate(4deg); } }
+
+  .badge {
+    display: inline-block; background: #fff; color: var(--coral);
+    padding: 6px 18px; border-radius: 999px; font-size: 1rem;
+    box-shadow: 0 6px 0 rgba(255,107,139,.18); margin-bottom: 18px; transform: rotate(-2deg);
+  }
+  #screen1 h1 {
+    font-size: clamp(2.6rem, 10vw, 6rem); color: var(--coral);
+    text-shadow: 4px 4px 0 #fff, 8px 8px 0 rgba(142,208,245,.5);
+    line-height: 1.05;
+  }
+  #screen1 h1 .b { color: var(--sky); }
+  #screen1 .sub { margin-top: 14px; font-size: clamp(1rem, 3.5vw, 1.5rem); color: var(--ink-soft); }
+
+  /* 照片相框 */
+  .photo-frame {
+    position: relative; margin: 22px auto 8px; width: min(260px, 70vw); aspect-ratio: 1/1;
+    background: #fff; border-radius: 24px; padding: 12px;
+    box-shadow: 0 14px 30px rgba(255,107,139,.25); transform: rotate(-2deg);
+    border: 5px solid var(--yellow);
+  }
+  .photo-frame svg, .photo-frame img { width: 100%; height: 100%; display: block; object-fit: cover; border-radius: 12px; }
+  .photo-tag {
+    position: absolute; bottom: -14px; left: 50%; transform: translateX(-50%) rotate(-2deg);
+    background: var(--coral); color: #fff; font-size: .9rem; padding: 4px 14px; border-radius: 999px; white-space: nowrap;
+  }
+  #screen1 .cta { margin-top: 30px; }
+
+  /* ============ 第二屏：公园里的家 ============ */
+  #screen2 { background: linear-gradient(#bfe9ff 0%, #e7f7ff 55%, #b6e7a8 55%, #8fd17a 100%); }
+  .sun {
+    position: absolute; top: 8%; right: 12%; width: 70px; height: 70px; border-radius: 50%;
+    background: var(--yellow); box-shadow: 0 0 0 12px rgba(255,214,107,.35), 0 0 50px rgba(255,214,107,.6);
+    animation: spin 18s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .cloud { position: absolute; font-size: 3rem; opacity: .9; animation: drift 14s linear infinite; }
+  .c1 { top: 14%; left: -10%; animation-duration: 18s; }
+  .c2 { top: 26%; left: -20%; animation-duration: 24s; font-size: 2.2rem; }
+  @keyframes drift { from { transform: translateX(0); } to { transform: translateX(130vw); } }
+  .tree { position: absolute; bottom: 38%; font-size: 3.5rem; }
+  .t1 { left: 8%; } .t2 { right: 10%; font-size: 4rem; } .t3 { left: 22%; bottom: 40%; font-size: 2.6rem; }
+  #screen2 .house { position: relative; width: min(240px, 60vw); margin-bottom: 26px; filter: drop-shadow(0 12px 14px rgba(0,0,0,.15)); }
+  #screen2 .house svg { width: 100%; height: auto; }
+  #screen2 h2 { color: var(--coral); font-size: clamp(1.6rem, 5vw, 2.4rem); text-shadow: 2px 2px 0 #fff; }
+
+  /* ============ 第三屏：敲门动画 ============ */
+  #screen3 { background: linear-gradient(#ffe2c4 0%, #ffd1a3 100%); }
+  .wall {
+    position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 38px, transparent 38px 76px),
+      linear-gradient(#f6b98a, #f0a877);
+  }
+  .scene { position: relative; width: min(420px, 86vw); height: min(420px, 70vh); }
+  /* 门 */
+  .door-wrap { position: absolute; left: 50%; top: 18%; transform: translateX(-50%); width: 130px; height: 200px; }
+  .door-frame { position: absolute; inset: -10px; background: #c8895a; border-radius: 14px 14px 6px 6px; }
+  .door {
+    position: absolute; inset: 0; background: linear-gradient(#e7a86b, #d99456);
+    border-radius: 10px 10px 4px 4px; transform-origin: left center; transition: transform .6s ease;
+    display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 0 4px rgba(255,255,255,.25);
+  }
+  .door .knob { width: 14px; height: 14px; border-radius: 50%; background: #fff3c4; position: absolute; right: 12px; top: 50%; }
+  .door.shake { animation: shake .25s ease 3; }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+  .door.open { transform: perspective(500px) rotateY(-105deg); }
+  /* 一二（门后） */
+  .yiyi { position: absolute; left: 50%; top: 22%; transform: translate(-50%, 10px); width: 96px; opacity: 0; transition: opacity .5s, transform .5s; }
+  .yiyi.show { opacity: 1; transform: translate(-50%, 0); }
+  /* 布布（敲门者） */
+  .bubu { position: absolute; right: -10%; top: 46%; width: 110px; transition: right .9s cubic-bezier(.4,1.4,.6,1); }
+  .bubu.walk { right: 26%; }
+  .bubu .arm { transform-origin: top center; }
+  .bubu.knock .arm { animation: knock .35s ease infinite; }
+  @keyframes knock { 0%,100% { transform: rotate(0); } 50% { transform: rotate(-42deg); } }
+  /* 对话气泡 */
+  .bubble {
+    position: absolute; left: 50%; top: 4%; transform: translateX(-50%) scale(.4); opacity: 0;
+    background: #fff; color: var(--coral); padding: 10px 18px; border-radius: 16px; font-size: 1.1rem;
+    box-shadow: 0 8px 18px rgba(0,0,0,.18); transition: opacity .4s, transform .4s; white-space: nowrap;
+  }
+  .bubble::after { content: ""; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border: 8px solid transparent; border-top-color: #fff; }
+  .bubble.show { opacity: 1; transform: translateX(-50%) scale(1); }
+  #screen3 .nav, #screen4 .nav, #screen5 .nav { position: absolute; bottom: 6%; left: 50%; transform: translateX(-50%); }
+  #screen3 .todo { position: absolute; top: 5%; right: 6%; color: var(--ink-soft); font-size: .85rem; opacity: .8; }
+
+  /* ============ 第四屏：蛋糕 ============ */
+  #screen4 { background: linear-gradient(#ffe2c4 0%, #ffd1a3 100%); }
+  #screen4 .wall { position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 38px, transparent 38px 76px), linear-gradient(#f6b98a, #f0a877); }
+  #screen4 .scene { position: relative; width: min(440px, 88vw); height: min(420px, 68vh); }
+  #screen4 .door-wrap { position: absolute; left: 50%; top: 14%; transform: translateX(-50%); width: 120px; height: 190px; }
+  #screen4 .door-frame { position: absolute; inset: -10px; background: #c8895a; border-radius: 14px 14px 6px 6px; }
+  #screen4 .door { position: absolute; inset: 0; background: linear-gradient(#e7a86b,#d99456); border-radius: 10px 10px 4px 4px; transform-origin: left center; transform: perspective(500px) rotateY(-105deg); }
+  #screen4 .yiyi { position: absolute; left: 8%; top: 30%; width: 96px; }
+  #screen4 .bubu { position: absolute; right: 4%; top: 32%; width: 108px; }
+  #screen4 .cake { position: absolute; right: 1%; top: 50%; width: 50px; opacity: 0; transform: translateY(10px) rotate(-10deg); transition: opacity .5s, transform .5s; }
+  #screen4 .cake.show { opacity: 1; transform: translateY(0) rotate(-10deg); }
+  #screen4 .bubble { position: absolute; left: 26%; top: 8%; transform: translateX(-50%) scale(.4); opacity: 0; background: #fff; color: var(--coral); padding: 10px 16px; border-radius: 16px; font-size: 1rem; box-shadow: 0 8px 18px rgba(0,0,0,.18); transition: opacity .4s, transform .4s; white-space: nowrap; }
+  #screen4 .bubble::after { content: ""; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border: 8px solid transparent; border-top-color: #fff; }
+  #screen4 .bubble.show { opacity: 1; transform: translateX(-50%) scale(1); }
+  #screen4 .bubble2 { position: absolute; right: 20%; top: 22%; transform: scale(.4); opacity: 0; background: #fff; color: var(--sky); padding: 8px 14px; border-radius: 14px; font-size: .95rem; box-shadow: 0 8px 18px rgba(0,0,0,.18); transition: opacity .4s, transform .4s; white-space: nowrap; }
+  #screen4 .bubble2::after { content: ""; position: absolute; bottom: -9px; left: 28%; transform: translateX(-50%); border: 7px solid transparent; border-top-color: #fff; }
+  #screen4 .bubble2.show { opacity: 1; transform: scale(1); }
+
+  /* ============ 第五屏：吃蛋糕 + 打游戏 ============ */
+  #screen5 { background: linear-gradient(#e9f7ff 0%, #fff3e6 100%); }
+  #screen5 .room { position: absolute; inset: 0;
+    background: repeating-linear-gradient(90deg, rgba(0,0,0,.02) 0 60px, transparent 60px 120px), linear-gradient(#fff7ec, #ffe9d6); }
+  #screen5 .scene { position: relative; width: min(460px, 90vw); height: min(420px, 68vh); }
+  #screen5 .yiyi { position: absolute; left: 12%; top: 34%; width: 98px; }
+  #screen5 .cake { position: absolute; left: 30%; top: 44%; width: 48px; transform-origin: center bottom; }
+  #screen5 .cake.eat { animation: eat 1.5s ease forwards; }
+  @keyframes eat {
+    0%   { transform: scale(1)   translateY(0);    opacity: 1; }
+    25%  { transform: scale(.62) translateY(-6px); opacity: 1; }
+    55%  { transform: scale(.62) translateY(-6px); opacity: 1; }
+    100% { transform: scale(.05) translateY(-18px); opacity: 0; }
+  }
+  #screen5 .bubu { position: absolute; right: 6%; top: 36%; width: 108px; transition: right .9s ease, top .9s ease; }
+  #screen5 .bubu.play { right: 2%; top: 28%; }
+  #screen5 .game { position: absolute; right: 9%; top: 56%; font-size: 2rem; opacity: 0; transition: opacity .4s; }
+  #screen5 .game.show { opacity: 1; }
+  #screen5 .bubble { position: absolute; left: 24%; top: 12%; transform: translateX(-50%) scale(.4); opacity: 0; background: #fff; color: var(--coral); padding: 10px 16px; border-radius: 16px; font-size: 1rem; box-shadow: 0 8px 18px rgba(0,0,0,.18); transition: opacity .4s, transform .4s; white-space: nowrap; }
+  #screen5 .bubble::after { content: ""; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border: 8px solid transparent; border-top-color: #fff; }
+  #screen5 .bubble.show { opacity: 1; transform: translateX(-50%) scale(1); }
+  #screen5 .bubble2 { position: absolute; right: 16%; top: 14%; transform: scale(.4); opacity: 0; background: #fff; color: var(--sky); padding: 8px 14px; border-radius: 14px; font-size: .95rem; box-shadow: 0 8px 18px rgba(0,0,0,.18); transition: opacity .4s, transform .4s; white-space: nowrap; }
+  #screen5 .bubble2::after { content: ""; position: absolute; bottom: -9px; left: 28%; transform: translateX(-50%); border: 7px solid transparent; border-top-color: #fff; }
+  #screen5 .bubble2.show { opacity: 1; transform: scale(1); }
+
+  @media (max-width: 720px) {
+    .bubu { width: 90px; } .bubu.walk { right: 22%; }
+    #screen4 .bubu, #screen5 .bubu { width: 88px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ================= 第一屏 ================= -->
+  <section class="screen active" id="screen1">
+    <div class="floaty f1">☁️</div>
+    <div class="floaty f2">🫧</div>
+    <div class="floaty f3">🌟</div>
+    <div class="floaty f4">🍬</div>
+    <div class="floaty f5">💛</div>
+    <div class="floaty f6">🌸</div>
+
+    <span class="badge">✿ 欢迎来到 ✿</span>
+    <h1>一二<span class="b">布布</span>家</h1>
+
+    <!-- 一二 & 布布 的照片（当前为卡通占位，真实照片抠图完成后替换） -->
+    <div class="photo-frame">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="一二和布布的合照">
+        <!-- 布布（粉） -->
+        <g transform="translate(48,70)">
+          <ellipse cx="50" cy="62" rx="42" ry="46" fill="#FF9EC4"/>
+          <circle cx="34" cy="40" r="7" fill="#fff"/><circle cx="66" cy="40" r="7" fill="#fff"/>
+          <circle cx="34" cy="42" r="3.5" fill="#5A4A42"/><circle cx="66" cy="42" r="3.5" fill="#5A4A42"/>
+          <circle cx="26" cy="54" r="6" fill="#FF6B8B" opacity=".5"/><circle cx="74" cy="54" r="6" fill="#FF6B8B" opacity=".5"/>
+          <path d="M40 58 q10 10 20 0" stroke="#5A4A42" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M20 18 q6 -16 18 -8" stroke="#FF9EC4" stroke-width="9" fill="none" stroke-linecap="round"/>
+          <path d="M80 18 q-6 -16 -18 -8" stroke="#FF9EC4" stroke-width="9" fill="none" stroke-linecap="round"/>
+        </g>
+        <!-- 一二（黄） -->
+        <g transform="translate(104,70)">
+          <ellipse cx="50" cy="62" rx="42" ry="46" fill="#FFD66B"/>
+          <circle cx="34" cy="40" r="7" fill="#fff"/><circle cx="66" cy="40" r="7" fill="#fff"/>
+          <circle cx="34" cy="42" r="3.5" fill="#5A4A42"/><circle cx="66" cy="42" r="3.5" fill="#5A4A42"/>
+          <circle cx="26" cy="54" r="6" fill="#FFB300" opacity=".5"/><circle cx="74" cy="54" r="6" fill="#FFB300" opacity=".5"/>
+          <path d="M40 58 q10 10 20 0" stroke="#5A4A42" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M22 20 l10 -14 l4 16 Z" fill="#FFB300"/>
+          <path d="M78 20 l-10 -14 l-4 16 Z" fill="#FFB300"/>
+        </g>
+      </svg>
+      <span class="photo-tag">📷 一二 & 布布</span>
+    </div>
+
+    <p class="sub">一个装满温柔、小确幸与奇思妙想的可爱小窝 🏠</p>
+    <div class="cta"><button class="btn" onclick="goTo(2)">✨ 进入布布家</button></div>
+  </section>
+
+  <!-- ================= 第二屏：公园里的家 ================= -->
+  <section class="screen" id="screen2">
+    <div class="sun"></div>
+    <div class="cloud c1">☁️</div>
+    <div class="cloud c2">⛅</div>
+    <div class="tree t1">🌳</div>
+    <div class="tree t2">🌲</div>
+    <div class="tree t3">🌳</div>
+
+    <h2>这是一二布布的家 🏡</h2>
+    <div class="house">
+      <svg viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
+        <rect x="40" y="80" width="120" height="90" rx="8" fill="#fff"/>
+        <path d="M30 80 L100 32 L170 80 Z" fill="#FF8FA3"/>
+        <rect x="86" y="118" width="28" height="52" rx="6" fill="#FF6B8B"/>
+        <circle cx="100" cy="144" r="3" fill="#fff"/>
+        <rect x="56" y="98" width="26" height="26" rx="5" fill="#8ED0F5"/>
+        <rect x="118" y="98" width="26" height="26" rx="5" fill="#9EE6C9"/>
+        <circle cx="100" cy="58" r="10" fill="#fff"/>
+      </svg>
+    </div>
+    <!-- 进入 1 秒后出现的按钮 -->
+    <button class="btn hidden" id="enterBtn" onclick="goTo(3)">🚪 进入布布家</button>
+  </section>
+
+  <!-- ================= 第三屏：敲门动画 ================= -->
+  <section class="screen" id="screen3">
+    <div class="wall"></div>
+    <div class="todo">（第三页）</div>
+
+    <div class="scene">
+      <div class="bubble" id="bubble">布布你回来啦！🎉</div>
+
+      <!-- 门 -->
+      <div class="door-wrap">
+        <div class="door-frame"></div>
+        <div class="door" id="door"><span class="knob"></span></div>
+      </div>
+
+      <!-- 一二（门后探出） -->
+      <div class="yiyi" id="yiyi">
+        <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="50" cy="66" rx="38" ry="42" fill="#FFD66B"/>
+          <circle cx="36" cy="44" r="7" fill="#fff"/><circle cx="64" cy="44" r="7" fill="#fff"/>
+          <circle cx="36" cy="46" r="3.5" fill="#5A4A42"/><circle cx="64" cy="46" r="3.5" fill="#5A4A42"/>
+          <circle cx="28" cy="58" r="6" fill="#FFB300" opacity=".5"/><circle cx="72" cy="58" r="6" fill="#FFB300" opacity=".5"/>
+          <path d="M40 62 q10 9 20 0" stroke="#5A4A42" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M22 22 l10 -14 l4 16 Z" fill="#FFB300"/>
+          <path d="M78 22 l-10 -14 l-4 16 Z" fill="#FFB300"/>
+        </svg>
+      </div>
+
+      <!-- 布布（敲门者） -->
+      <div class="bubu" id="bubu">
+        <svg viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg">
+          <g class="arm">
+            <rect x="78" y="56" width="14" height="34" rx="7" fill="#FF9EC4"/>
+            <circle cx="85" cy="92" r="10" fill="#FF9EC4"/>
+          </g>
+          <ellipse cx="52" cy="74" rx="42" ry="46" fill="#FF9EC4"/>
+          <circle cx="38" cy="52" r="7" fill="#fff"/><circle cx="66" cy="52" r="7" fill="#fff"/>
+          <circle cx="38" cy="54" r="3.5" fill="#5A4A42"/><circle cx="66" cy="54" r="3.5" fill="#5A4A42"/>
+          <circle cx="28" cy="66" r="6" fill="#FF6B8B" opacity=".5"/><circle cx="74" cy="66" r="6" fill="#FF6B8B" opacity=".5"/>
+          <path d="M42 70 q10 10 20 0" stroke="#5A4A42" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M22 30 q6 -16 18 -8" stroke="#FF9EC4" stroke-width="9" fill="none" stroke-linecap="round"/>
+          <path d="M82 30 q-6 -16 -18 -8" stroke="#FF9EC4" stroke-width="9" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="btn ghost" onclick="playKnock()">🔁 再看一遍</button>
+      <button class="btn" onclick="goTo(4)">下一页 →</button>
+    </div>
+  </section>
+
+  <!-- ================= 第四屏：问蛋糕 / 藏蛋糕 ================= -->
+  <section class="screen" id="screen4">
+    <div class="wall"></div>
+    <div class="todo">（第四页）</div>
+
+    <div class="scene">
+      <!-- 门（开着） -->
+      <div class="door-wrap">
+        <div class="door-frame"></div>
+        <div class="door"></div>
+      </div>
+
+      <!-- 一二（门口，已开门） -->
+      <div class="yiyi show">
+        <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="50" cy="66" rx="38" ry="42" fill="#FFD66B"/>
+          <circle cx="36" cy="44" r="7" fill="#fff"/><circle cx="64" cy="44" r="7" fill="#fff"/>
+          <circle cx="36" cy="46" r="3.5" fill="#5A4A42"/><circle cx="64" cy="46" r="3.5" fill="#5A4A42"/>
+          <circle cx="28" cy="58" r="6" fill="#FFB300" opacity=".5"/><circle cx="72" cy="58" r="6" fill="#FFB300" opacity=".5"/>
+          <path d="M40 62 q10 9 20 0" stroke="#5A4A42" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M22 22 l10 -14 l4 16 Z" fill="#FFB300"/>
+          <path d="M78 22 l-10 -14 l-4 16 Z" fill="#FFB300"/>
+        </svg>
+      </div>
+
+      <!-- 布布（门前，背后藏蛋糕） -->
+      <div class="bubu">
+        <svg viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="52" cy="74" rx="42" ry="46" fill="#FF9EC4"/>
+          <circle cx="38" cy="52" r="7" fill="#fff"/><circle cx="66" cy="52" r="7" fill="#fff"/>
+          <circle cx="38" cy="54" r="3.5" fill="#5A4A42"/><circle cx="66" cy="54" r="3.5" fill="#5A4A42"/>
+          <circle cx="28" cy="66" r="6" fill="#FF6B8B" opacity=".5"/><circle cx="74" cy="66" r="6" fill="#FF6B8B" opacity=".5"/>
+          <path d="M42 70 q10 10 20 0" stroke="#5A4A42" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M22 30 q6 -16 18 -8" stroke="#FF9EC4" stroke-width="9" fill="none" stroke-linecap="round"/>
+          <path d="M82 30 q-6 -16 -18 -8" stroke="#FF9EC4" stroke-width="9" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <!-- 藏起来的小蛋糕 -->
+      <div class="cake" id="b4-cake">
+        <svg viewBox="0 0 60 64" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 34 h40 v16 a4 4 0 0 1-4 4 h-32 a4 4 0 0 1-4-4 z" fill="#FFD9A0"/>
+          <path d="M10 34 q10 -13 20 0 q10 -13 20 0 v5 h-40 z" fill="#FFB3C6"/>
+          <path d="M30 8 q6 8 0 14 q-6 -8 0 -14" fill="#FF6B8B"/>
+          <circle cx="30" cy="14" r="4" fill="#FF6B8B"/>
+        </svg>
+      </div>
+
+      <!-- 对话气泡 -->
+      <div class="bubble" id="b4-yiyi">布布，你带小蛋糕了吗？</div>
+      <div class="bubble2" id="b4-bubu">嘘——我偷偷带了一个！</div>
+    </div>
+
+    <div class="nav">
+      <button class="btn ghost" onclick="goTo(3)">← 上一页</button>
+      <button class="btn" onclick="goTo(5)">下一页 →</button>
+    </div>
+  </section>
+
+  <!-- ================= 第五屏：吃蛋糕 + 打游戏 ================= -->
+  <section class="screen" id="screen5">
+    <div class="room"></div>
+    <div class="todo">（第五页）</div>
+
+    <div class="scene">
+      <!-- 一二（左，吃蛋糕） -->
+      <div class="yiyi">
+        <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="50" cy="66" rx="38" ry="42" fill="#FFD66B"/>
+          <circle cx="36" cy="44" r="7" fill="#fff"/><circle cx="64" cy="44" r="7" fill="#fff"/>
+          <circle cx="36" cy="46" r="3.5" fill="#5A4A42"/><circle cx="64" cy="46" r="3.5" fill="#5A4A42"/>
+          <circle cx="28" cy="58" r="6" fill="#FFB300" opacity=".5"/><circle cx="72" cy="58" r="6" fill="#FFB300" opacity=".5"/>
+          <path d="M40 62 q10 12 20 0" stroke="#5A4A42" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M22 22 l10 -14 l4 16 Z" fill="#FFB300"/>
+          <path d="M78 22 l-10 -14 l-4 16 Z" fill="#FFB300"/>
+        </svg>
+      </div>
+
+      <!-- 小蛋糕（被吃） -->
+      <div class="cake" id="b5-cake">
+        <svg viewBox="0 0 60 64" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 34 h40 v16 a4 4 0 0 1-4 4 h-32 a4 4 0 0 1-4-4 z" fill="#FFD9A0"/>
+          <path d="M10 34 q10 -13 20 0 q10 -13 20 0 v5 h-40 z" fill="#FFB3C6"/>
+          <circle cx="30" cy="14" r="4" fill="#FF6B8B"/>
+        </svg>
+      </div>
+
+      <!-- 布布（右，去打游戏） -->
+      <div class="bubu" id="b5-bubu">
+        <svg viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="52" cy="74" rx="42" ry="46" fill="#FF9EC4"/>
+          <circle cx="38" cy="52" r="7" fill="#fff"/><circle cx="66" cy="52" r="7" fill="#fff"/>
+          <circle cx="38" cy="54" r="3.5" fill="#5A4A42"/><circle cx="66" cy="54" r="3.5" fill="#5A4A42"/>
+          <circle cx="28" cy="66" r="6" fill="#FF6B8B" opacity=".5"/><circle cx="74" cy="66" r="6" fill="#FF6B8B" opacity=".5"/>
+          <path d="M42 70 q10 10 20 0" stroke="#5A4A42" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M22 30 q6 -16 18 -8" stroke="#FF9EC4" stroke-width="9" fill="none" stroke-linecap="round"/>
+          <path d="M82 30 q-6 -16 -18 -8" stroke="#FF9EC4" stroke-width="9" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <!-- 游戏机 -->
+      <div class="game" id="b5-game">🎮</div>
+
+      <!-- 对话气泡 -->
+      <div class="bubble" id="b5-yiyi">好吃～谢谢你布布！</div>
+      <div class="bubble2" id="b5-bubu">我去打游戏啦！</div>
+    </div>
+
+    <div class="nav">
+      <button class="btn ghost" onclick="goTo(4)">← 上一页</button>
+      <button class="btn" onclick="goTo(1)">↺ 回到首页</button>
+    </div>
+  </section>
+
+  <script>
+    const screens = document.querySelectorAll('.screen');
+    let screen2Timer = null;
+
+    function goTo(n) {
+      screens.forEach(s => s.classList.remove('active'));
+      const target = document.getElementById('screen' + n);
+      target.classList.add('active');
+
+      // 进入第二屏：1 秒后显示按钮
+      if (n === 2) {
+        clearTimeout(screen2Timer);
+        const btn = document.getElementById('enterBtn');
+        btn.classList.remove('show'); btn.classList.add('hidden');
+        screen2Timer = setTimeout(() => { btn.classList.remove('hidden'); btn.classList.add('show'); }, 1000);
+      }
+      // 进入第三屏：播放敲门动画
+      if (n === 3) playKnock();
+      // 进入第四屏：蛋糕对话
+      if (n === 4) playScreen4();
+      // 进入第五屏：吃蛋糕 + 打游戏
+      if (n === 5) playScreen5();
+    }
+
+    function playKnock() {
+      const bubu = document.getElementById('bubu');
+      const door = document.getElementById('door');
+      const yiyi = document.getElementById('yiyi');
+      const bubble = document.getElementById('bubble');
+
+      bubu.classList.remove('walk', 'knock');
+      door.classList.remove('open', 'shake');
+      yiyi.classList.remove('show');
+      bubble.classList.remove('show');
+      void bubu.offsetWidth;
+
+      bubu.classList.add('walk');
+      setTimeout(() => bubu.classList.add('knock'), 950);
+      setTimeout(() => door.classList.add('shake'), 950);
+      setTimeout(() => { door.classList.remove('shake'); door.classList.add('open'); }, 2700);
+      setTimeout(() => { yiyi.classList.add('show'); bubble.classList.add('show'); }, 3100);
+    }
+
+    function playScreen4() {
+      const yB = document.getElementById('b4-yiyi');
+      const bB = document.getElementById('b4-bubu');
+      const cake = document.getElementById('b4-cake');
+      yB.classList.remove('show'); bB.classList.remove('show'); cake.classList.remove('show');
+      void yB.offsetWidth;
+      setTimeout(() => yB.classList.add('show'), 300);
+      setTimeout(() => cake.classList.add('show'), 900);
+      setTimeout(() => bB.classList.add('show'), 1300);
+    }
+
+    function playScreen5() {
+      const cake = document.getElementById('b5-cake');
+      const bubu = document.getElementById('b5-bubu');
+      const game = document.getElementById('b5-game');
+      const yB = document.getElementById('b5-yiyi');
+      const bB = document.getElementById('b5-bubu');
+      cake.classList.remove('eat'); bubu.classList.remove('play'); game.classList.remove('show');
+      yB.classList.remove('show'); bB.classList.remove('show');
+      void cake.offsetWidth;
+      setTimeout(() => yB.classList.add('show'), 400);
+      setTimeout(() => cake.classList.add('eat'), 700);
+      setTimeout(() => bubu.classList.add('play'), 1100);
+      setTimeout(() => game.classList.add('show'), 1300);
+      setTimeout(() => bB.classList.add('show'), 1500);
+    }
+  </script>
+</body>
+</html>
